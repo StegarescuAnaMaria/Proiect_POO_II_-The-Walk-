@@ -25,12 +25,13 @@ TypeI::TypeI(const char Item_type, const char Urma1, const char Urma2, const cha
 {
 
 }
-TypeII::TypeII(const char Item_type, const char Urma1, const char Urma2,const char Urma3, const char Urma4, const char Val)
+TypeII::TypeII(const char Item_type, const char Urma1, const char Urma2, const char Urma3, const char Urma4, const char Val)
 :Walk(Urma1, Urma2, Item_type, Val), urma3(Urma3), urma4(Urma4)
 {
 
 }
-TypeIII::TypeIII(const char Item_type, const char Urma1, const char Urma2, const char Val):Walk(Urma1, Urma2, Item_type, Val)
+TypeIII::TypeIII(const char Item_type, const char Urma1, const char Urma2, const char Urma3, const char Urma4, const char Val)
+:Walk(Urma1, Urma2, Item_type, Val), urma3(Urma3), urma4(Urma4)
 {
 
 }
@@ -64,8 +65,13 @@ int main()
     //Move_on_line(w, x, y, robot1);
     //int x=0, y=0;
     //movementI(robot1, w, x, y);
-    movementII(robot2, w, x, y);
+    //movementII(robot2, w, x, y);
+    cout<<"Primul "<<endl;
+    //movementII(robot2, w, x, y);
+   //movementII(robot2, w, x, y);
+   //movementII(robot2, w, x, y);
 
+movementIII(robot3, w, x, y);
 
     return 0;
 }
@@ -249,10 +255,10 @@ int** realocare(int**warning, int& nr_obiecte)
     return warning;
 }
 
-void Move_on_line_forward(Map&obj, int& x, int& y, Walk& robot)
+void Move_on_line_forward(Map&obj, int& x, int& y, Walk& robot, int& destination)
 {
 
-    if(Move_towards_item_line(obj, x, y, robot)==1)
+    if(Move_towards_item_line(obj, x, y, robot, destination)==1)
         return;
     obj.harta[x][y+1]=robot.getVal();
     obj.harta[x][y]=robot.getUrma1();
@@ -368,10 +374,10 @@ Map::Map(int L, int H, const char B, int n_bomb, int n_item, const char D, const
     //printare(harta);
 }
 
-void Move_on_column_down(Map&obj, int& x, int& y, Walk& robot)
+void Move_on_column_down(Map&obj, int& x, int& y, Walk& robot, int& destination)
 {
 
-    if(Move_towards_item_column(obj, x, y, robot)==1)
+    if(Move_towards_item_column(obj, x, y, robot, destination)==1)
         return;
     obj.harta[x+1][y]=robot.getVal();
     obj.harta[x][y]=robot.getUrma2();
@@ -388,6 +394,7 @@ void movementI(Walk& robot, Map &obj, int&x, int&y)
     char**harta=obj.getHarta();
     harta[x][y]=robot.getVal();
     printare(obj.harta);
+    int destination=0;
 //------------------------------------------------
     while((x<15)&&(y<15))
     {
@@ -397,7 +404,7 @@ void movementI(Walk& robot, Map &obj, int&x, int&y)
         {
             if(x>=14||y>=14)
                 break;
-            Move_on_line_forward(obj, x, y, robot);
+            Move_on_line_forward(obj, x, y, robot, destination);
             cout<<x<<" "<<y<<endl;
 
         }
@@ -405,10 +412,14 @@ void movementI(Walk& robot, Map &obj, int&x, int&y)
         {
             if(x>=14||y>=14)
                 break;
-            Move_on_column_down(obj, x, y, robot);
+            Move_on_column_down(obj, x, y, robot, destination);
             cout<<x<<" "<<y<<endl;
 
         }
+        if(destination==1)
+    { cout<<"S-a ajuns la destinatie cu succes! Sfarsit de joc."<<endl;
+        return;
+    }
 
     }
     //---------------------------------------------------
@@ -421,17 +432,21 @@ void movementI(Walk& robot, Map &obj, int&x, int&y)
             //cout<<"Here i "<<i<<endl;
             if(y>=14)
                 break;
-            Move_on_line_forward(obj, x, y, robot);
+            Move_on_line_forward(obj, x, y, robot, destination);
             cout<<x<<" "<<y<<endl;
         }
         for(j=0; j<3; j++)
         {
             if(x==0)
                 break;
-            Move_on_column_up(obj, x, y, robot);
+            Move_on_column_up(obj, x, y, robot, destination);
             cout<<x<<" "<<y<<endl;
 
         }
+        if(destination==1)
+    { cout<<"S-a ajuns la destinatie cu succes! Sfarsit de joc."<<endl;
+        return;
+    }
     }
     //-------------------------------------------------------
     while(x>=0&&y>=0)
@@ -443,16 +458,20 @@ void movementI(Walk& robot, Map &obj, int&x, int&y)
         {
             if(y==0)
                 break;
-            Move_on_line_backward(obj, x, y, robot);
+            Move_on_line_backward(obj, x, y, robot, destination);
             cout<<x<<" "<<y<<endl;
         }
         for(j=0; j<3; j++)
         {
             if(x==0)
                 break;
-            Move_on_column_up(obj, x, y, robot);
+            Move_on_column_up(obj, x, y, robot, destination);
             cout<<x<<" "<<y<<endl;
         }
+        if(destination==1)
+    { cout<<"S-a ajuns la destinatie cu succes! Sfarsit de joc."<<endl;
+        return;
+    }
     }
     //-------------------------------------
     while(x<15&&y>=0)
@@ -464,26 +483,30 @@ void movementI(Walk& robot, Map &obj, int&x, int&y)
         {
             if(y==0)
                 break;
-            Move_on_line_backward(obj, x, y, robot);
+            Move_on_line_backward(obj, x, y, robot, destination);
             cout<<x<<" "<<y<<endl;
         }
         for(j=0; j<3; j++)
         {
             if(x==14)
                 break;
-            Move_on_column_down(obj, x, y, robot);
+            Move_on_column_down(obj, x, y, robot, destination);
             cout<<x<<" "<<y<<endl;
         }
+        if(destination==1)
+    { cout<<"S-a ajuns la destinatie cu succes! Sfarsit de joc."<<endl;
+        return;
+    }
     }
 
 
 
 }
 
-void Move_on_column_up(Map&obj, int& x, int& y, Walk& robot)
+void Move_on_column_up(Map&obj, int& x, int& y, Walk& robot, int& destination)
 {
 
-    if(Move_towards_item_column(obj, x, y, robot)==1)
+    if(Move_towards_item_column(obj, x, y, robot, destination)==1)
         return;
     obj.harta[x-1][y]=robot.getVal();
     obj.harta[x][y]=robot.getUrma2();
@@ -492,9 +515,9 @@ void Move_on_column_up(Map&obj, int& x, int& y, Walk& robot)
     printare(obj.harta);
 }
 
-void Move_on_line_backward(Map&obj, int& x, int& y, Walk& robot)
+void Move_on_line_backward(Map&obj, int& x, int& y, Walk& robot, int& destination)
 {
-    if(Move_towards_item_line(obj, x, y, robot)==1)
+    if(Move_towards_item_line(obj, x, y, robot, destination)==1)
         return;
 
     obj.harta[x][y-1]=robot.getVal();
@@ -512,31 +535,44 @@ int seed=0;
     harta[x][y]=robot.getVal();
     printare(obj.harta);
     //TypeII *robot2 =  (TypeII *) &robot;
+    int destination=0;
 while(x>=0&&y>=0&&x<15&&y<15)
-{  if(x==14||y==14) break;
+{  if(y==14) break;
     int aux=rand();
 int aux1=aux%2;
 cout<<x<<" "<<y<<endl;
     cout<<"aux1 este "<<aux1<<endl;
-    if(aux1==0&&x!=0&&y!=14) Move_on_the_diagonal_forward_up(obj, x, y, robot);
-    else if(aux1==1&&x!=14&&y!=14) Move_on_the_diagonal_forward_down(obj, x, y, robot);
+    if(aux1==0&&x!=0) Move_on_the_diagonal_forward_up(obj, x, y, robot, destination);
+    else if(aux1==1&&x!=14) Move_on_the_diagonal_forward_down(obj, x, y, robot, destination);
+    //else if(x==0||x==14) break;
+    if(destination==1)
+    { cout<<"S-a ajuns la destinatie cu succes! Sfarsit de joc."<<endl;
+        return;
+    }
+        cout<<x<<" "<<y<<endl;
 }
 
 while(x>=0&&y>=0&&x<15&&y<15)
-{  if(x==14||y==0) break;
+{  if(y==0) break;
     int aux=rand();
 int aux1=aux%2;
 cout<<x<<" "<<y<<endl;
     cout<<"aux1 este "<<aux1<<endl;
-    if(aux1==0&&x!=0&&y!=0) Move_on_the_diagonal_backward_up(obj, x, y, robot);
-    else if(aux1==1&&x!=14&&y!=0) Move_on_the_diagonal_backward_down(obj, x, y, robot);
+    if(aux1==0&&x!=0) Move_on_the_diagonal_backward_up(obj, x, y, robot, destination);
+    else if(aux1==1&&x!=14) Move_on_the_diagonal_backward_down(obj, x, y, robot, destination);
+    //else if(x==0||x==14) break;
+    if(destination==1)
+    { cout<<"S-a ajuns la destinatie cu succes! Sfarsit de joc."<<endl;
+        return;
+    }
+    cout<<x<<" "<<y<<endl;
 }
 
 }
 
-void Move_on_the_diagonal_forward_up(Map&obj, int& x, int& y, Walk& robot)
+void Move_on_the_diagonal_forward_up(Map&obj, int& x, int& y, Walk& robot, int& destination)
 {
-    if(Move_towards_item_diagonal(obj, x, y, robot)==1) return;
+    if(Move_towards_item_diagonal(obj, x, y, robot, destination)==1) return;
     //if(Move_towards_item_line(obj, x, y, robot)==1) return;
 
 TypeII *robot2 =  (TypeII *) &robot;
@@ -548,9 +584,9 @@ TypeII *robot2 =  (TypeII *) &robot;
     printare(obj.harta);
 }
 
-void Move_on_the_diagonal_forward_down(Map&obj, int& x, int& y, Walk& robot)
+void Move_on_the_diagonal_forward_down(Map&obj, int& x, int& y, Walk& robot, int& destination)
 {
-    if(Move_towards_item_diagonal(obj, x, y, robot)==1) return;
+    if(Move_towards_item_diagonal(obj, x, y, robot, destination)==1) return;
     //if(Move_towards_item_line(obj, x, y, robot)==1) return;
 
 TypeII *robot2 =  (TypeII *) &robot;
@@ -562,7 +598,7 @@ TypeII *robot2 =  (TypeII *) &robot;
     printare(obj.harta);
 }
 
-int Move_towards_item_column(Map&obj, int& x, int& y, Walk& robot)
+int Move_towards_item_column(Map&obj, int& x, int& y, Walk& robot, int& destination)
 {
     int**warning=NULL;
     int nr_obiecte=0;
@@ -610,7 +646,7 @@ int Move_towards_item_column(Map&obj, int& x, int& y, Walk& robot)
     return answer;
 }
 
-int Move_towards_item_line(Map&obj, int& x, int& y, Walk& robot)
+int Move_towards_item_line(Map&obj, int& x, int& y, Walk& robot, int& destination)
 {
     int**warning=NULL;
     int nr_obiecte=0;
@@ -657,9 +693,9 @@ int Move_towards_item_line(Map&obj, int& x, int& y, Walk& robot)
     return answer;
 }
 
-void Move_on_the_diagonal_backward_up(Map&obj, int& x, int& y, Walk& robot)
+void Move_on_the_diagonal_backward_up(Map&obj, int& x, int& y, Walk& robot, int& destination)
 {
-    if(Move_towards_item_diagonal(obj, x, y, robot)==1) return;
+    if(Move_towards_item_diagonal(obj, x, y, robot, destination)==1) return;
     //if(Move_towards_item_line(obj, x, y, robot)==1) return;
 
 TypeII* robot2=(TypeII*)&robot;
@@ -671,9 +707,9 @@ TypeII* robot2=(TypeII*)&robot;
     printare(obj.harta);
 }
 
-void Move_on_the_diagonal_backward_down(Map&obj, int& x, int& y, Walk& robot)
+void Move_on_the_diagonal_backward_down(Map&obj, int& x, int& y, Walk& robot, int& destination)
 {
-    if(Move_towards_item_diagonal(obj, x, y, robot)==1) return;
+    if(Move_towards_item_diagonal(obj, x, y, robot, destination)==1) return;
     //if(Move_towards_item_line(obj, x, y, robot)==1) return;
 
 TypeII* robot2=(TypeII*)&robot;
@@ -685,7 +721,7 @@ TypeII* robot2=(TypeII*)&robot;
     printare(obj.harta);
 }
 
-int Move_towards_item_diagonal(Map&obj, int& x, int& y, Walk& robot)
+int Move_towards_item_diagonal(Map&obj, int& x, int& y, Walk& robot, int& destination)
 {
     int**warning=NULL;
     int nr_obiecte=0;
@@ -700,38 +736,38 @@ int Move_towards_item_diagonal(Map&obj, int& x, int& y, Walk& robot)
         {
             answer=1;
             if(warning[i][1]<y&&warning[i][0]<x)
-            {
+            { if(obj.harta[x-1][y-1]==obj.destinatie) destination=1;
                 obj.harta[x-1][y-1]=robot.getVal();
                 obj.harta[x][y]=robot2->getUrma4();
                 x--; y--;
             }
             else if(warning[i][1]>y&&warning[i][0]<x)
-            {
+            { if(obj.harta[x-1][y+1]==obj.destinatie) destination=1;
                 obj.harta[x-1][y+1]=robot.getVal();
                 obj.harta[x][y]=robot2->getUrma3();
                 x--; y++;
             }
             else if(warning[i][1]<y&&warning[i][0]>x)
-            {
+            { if(obj.harta[x+1][y-1]==obj.destinatie) destination=1;
                 obj.harta[x+1][y-1]=robot.getVal();
                 obj.harta[x][y]=robot2->getUrma3();
                 x++; y--;
             }
             else if(warning[i][1]>y&&warning[i][0]>x)
-            {
+            { if(obj.harta[x+1][y+1]==obj.destinatie) destination=1;
                 obj.harta[x+1][y+1]=robot.getVal();
                 obj.harta[x][y]=robot2->getUrma4();
                 x++; y++;
             }
                 //daca nu e posibil sa mearga pe diagonala
             else if(warning[i][1]>y)
-            {
+            { if(obj.harta[x][y+1]==obj.destinatie) destination=1;
                 obj.harta[x][y+1]=robot.getVal();
                 obj.harta[x][y]=robot.getUrma1();
                 y++;
             }
             else if(warning[i][1]<y)
-            {
+            { if(obj.harta[x][y-1]==obj.destinatie) destination=1;
                 obj.harta[x][y-1]=robot.getVal();
                 obj.harta[x][y]=robot.getUrma1();
                 y--;
@@ -739,13 +775,13 @@ int Move_towards_item_diagonal(Map&obj, int& x, int& y, Walk& robot)
             else
             {
                 if(warning[i][0]>x)
-                {
+                { if(obj.harta[x+1][y]==obj.destinatie) destination=1;
                     obj.harta[x+1][y]=robot.getVal();
                     obj.harta[x][y]=robot.getUrma2();
                     x++;
                 }
                 else if(warning[i][0]<x)
-                {
+                { if(obj.harta[x-1][y]==obj.destinatie) destination=1;
                     obj.harta[x-1][y]=robot.getVal();
                     obj.harta[x][y]=robot.getUrma2();
                     x--;
@@ -756,4 +792,35 @@ int Move_towards_item_diagonal(Map&obj, int& x, int& y, Walk& robot)
         }
     }
     return answer;
+}
+
+void movementIII(Walk& robot, Map &obj, int&x, int&y)
+{ int destination=0;
+    int seed=0;
+    char**harta=obj.getHarta();
+    harta[x][y]=robot.getVal();
+    printare(obj.harta);
+
+while(x>=0&&y>=0&&x<15&&y<15)
+{  //if(x==14||y==14||x==0||y==0) break;
+    int aux=rand();
+int aux1=aux%8;
+cout<<x<<" "<<y<<endl;
+    cout<<"aux1 este "<<aux1<<endl;
+
+    if(aux1==0&&x!=0) Move_on_column_up(obj, x, y, robot, destination);
+    else if(aux1==1&&x!=0&&y!=14) Move_on_the_diagonal_forward_up(obj, x, y, robot, destination);
+    else if(aux1==2&&y!=14) Move_on_line_forward(obj, x, y, robot, destination);
+    else if(aux1==3&&y!=14&&x!=14) Move_on_the_diagonal_forward_down(obj, x, y, robot, destination);
+    else if(aux1==4&&x!=14) Move_on_column_down(obj, x, y, robot, destination);
+    else if(aux1==5&&x!=14&&y!=0) Move_on_the_diagonal_backward_down(obj, x, y, robot, destination);
+    else if(aux1==6&&y!=0) Move_on_line_backward(obj, x, y, robot, destination);
+    else if(aux1==7&&x!=0&&y!=0) Move_on_the_diagonal_backward_up(obj, x, y, robot, destination);
+    cout<<x<<" "<<y<<endl;
+    if(destination==1)
+    { cout<<"S-a ajuns la destinatie cu succes! Sfarsit de joc."<<endl;
+        break;
+    }
+}
+
 }

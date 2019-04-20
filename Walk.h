@@ -3,15 +3,14 @@
 
 class Walk
 {
-    public:
-        Walk(const char Urma1='-', const char Urma2='|', const char Item_type='%', const char Val=' ');
-       virtual ~Walk();
+public:
+    Walk(const char Urma1='-', const char Urma2='|', const char Item_type='%', const char Val=' ');
+    virtual ~Walk();
     virtual const char getItem()
     {
         return item_type;
     }
-   //virtual const char getVal()=0;
-const char getVal()
+    const char getVal()
     {
         return val;
     }
@@ -24,13 +23,13 @@ const char getVal()
     {
         return urma2;
     }
-    protected:
+protected:
 
-    private:
-        const char urma1;
-const char urma2;
-const char item_type;
-const char val;
+private:
+    const char urma1;
+    const char urma2;
+    const char item_type;
+    const char val;
 };
 class TypeII;
 class Map:public Walk
@@ -43,26 +42,26 @@ class Map:public Walk
     int nr_itemi;
     char**harta;
 public:
-    //friend void Move_on_line(char**&harta, int**&warning, int x, int y, int nr_obiecte, const char destinatie);
+    friend void movementIII(Walk& robot, Map &obj, int&x, int&y);
     friend void movementII(Walk& robot, Map &obj, int&x, int&y);
     friend void movementI(Walk&, Map&, int&, int&);
-friend void Move_on_column_down(Map&obj, int& x, int& y, Walk& robot);
-friend void Move_on_column_up(Map&obj, int& x, int& y, Walk& robot);
-friend void Move_on_line_backward(Map&obj, int& x, int& y, Walk& robot);
-    friend void Move_on_line_forward(Map &obj, int&, int&, Walk&);
+    friend void Move_on_column_down(Map&obj, int& x, int& y, Walk& robot, int& destination);
+    friend void Move_on_column_up(Map&obj, int& x, int& y, Walk& robot, int& destination);
+    friend void Move_on_line_backward(Map&obj, int& x, int& y, Walk& robot, int& destination);
+    friend void Move_on_line_forward(Map &obj, int&, int&, Walk&, int& destination);
     friend int check_bombs_onLine(int, int, Map);
     friend void check(Map obj, int**&warning, int x, int y, Walk& robot, int &nr_obiecte);
-    friend void Move_on_the_diagonal_forward_up(Map&obj, int& x, int& y, Walk& robot);
-   friend void Move_on_the_diagonal_forward_down(Map&obj, int& x, int& y, Walk& robot);
-   friend void Move_on_the_diagonal_backward_up(Map&obj, int& x, int& y, Walk& robot);
-   friend void Move_on_the_diagonal_backward_down(Map&obj, int& x, int& y, Walk& robot);
-    friend int Move_towards_item_column(Map&obj, int& x, int& y, Walk& robot);
-    friend int Move_towards_item_line(Map&obj, int& x, int& y, Walk& robot);
-    friend int Move_towards_item_diagonal(Map&obj, int& x, int& y, Walk& robot);
+    friend void Move_on_the_diagonal_forward_up(Map&obj, int& x, int& y, Walk& robot, int& destination);
+    friend void Move_on_the_diagonal_forward_down(Map&obj, int& x, int& y, Walk& robot, int& destination);
+    friend void Move_on_the_diagonal_backward_up(Map&obj, int& x, int& y, Walk& robot, int& destination);
+    friend void Move_on_the_diagonal_backward_down(Map&obj, int& x, int& y, Walk& robot, int& destination);
+    friend int Move_towards_item_column(Map&obj, int& x, int& y, Walk& robot, int& destination);
+    friend int Move_towards_item_line(Map&obj, int& x, int& y, Walk& robot, int& destination);
+    friend int Move_towards_item_diagonal(Map&obj, int& x, int& y, Walk& robot, int& destination);
+
     Map(int L=15, int H=15, const char B='#', int n_bomb=7, int n_item=3, const char D='X', const char item1=' ',
         const char item2=' ', const char item3=' ', const char item4=' ');
-
-    ~Map(){};
+    ~Map() {};
 
     int getL()
     {
@@ -94,7 +93,8 @@ friend void Move_on_line_backward(Map&obj, int& x, int& y, Walk& robot);
     }
 };
 class TypeI:public Walk
-{ //const char item_type;
+{
+    //const char item_type;
 //const char urma1;
 //const char urma2;
 //const char val;
@@ -113,15 +113,16 @@ public:
 
 };
 class TypeII:public Walk
-{ //const char item_type;
+{
+    //const char item_type;
     //const char val;
 //const char urma1;
 //const char urma2;
-const char urma3;
-const char urma4;
+    const char urma3;
+    const char urma4;
 public:
     friend void movementII(Walk& robot, Map &obj, int&x, int&y);
-    TypeII(const char Item_type='@', const char Urma1='-', const char Urma2='|',const char Urma3='/', const char Urma4='\\', const char Val='2');
+    TypeII(const char Item_type='@', const char Urma1='-', const char Urma2='|', const char Urma3='/', const char Urma4='\\', const char Val='2');
     ~TypeII() {};
     /*const char getItem()
     {
@@ -139,17 +140,25 @@ public:
     }
 };
 class TypeIII:public Walk
-{    //const char item_type;
+{
+    //const char item_type;
     //const char val;
-//const char urma1;
-//const char urma2;
+    const char urma3;
+    const char urma4;
 public:
-    TypeIII(const char Item_type='$', const char Urma1='-', const char Urma2='|', const char Val='3');
+    TypeIII(const char Item_type='$', const char Urma1='-', const char Urma2='|',const char Urma3='/', const char Urma4='\\', const char Val='3');
     ~TypeIII() {};
-/*const char getItem()
+
+    const char getUrma3()
     {
-        return item_type;
-    }*/
+        return urma3;
+
+    }
+    const char getUrma4()
+    {
+        return urma4;
+
+    }
 
 };
 
