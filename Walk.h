@@ -48,6 +48,18 @@ class Map:public Walk
     int nr_itemi;
     char**harta;
 public:
+    friend void Combinatie_tipI_1(Map& obj, Walk& robot, int& x, int& y, int& destination, int& nr_vieti);
+    friend void Combinatie_tipI_2(Map& obj, Walk& robot, int& x, int& y, int& destination, int& nr_vieti);
+    friend void Combinatie_tipI_3(Map& obj, Walk& robot, int& x, int& y, int& destination, int& nr_vieti);
+    friend void Combinatie_tipI_4(Map& obj, Walk& robot, int& x, int& y, int& destination, int& nr_vieti);
+    friend void Combinatie_tipI_5(Map& obj, Walk& robot, int& x, int& y, int& destination, int& nr_vieti);
+    friend void Combinatie_tipI_6(Map& obj, Walk& robot, int& x, int& y, int& destination, int& nr_vieti);
+    friend void Combinatie_tipI_7(Map& obj, Walk& robot, int& x, int& y, int& destination, int& nr_vieti);
+    friend void Combinatie_tipI_8(Map& obj, Walk& robot, int& x, int& y, int& destination, int& nr_vieti);
+    friend void Combinatie_tipII_1(Map& obj, Walk& robot, int& x, int& y, int& destination, int& nr_vieti);
+    friend void Combinatie_tipII_2(Map& obj, Walk& robot, int& x, int& y, int& destination, int& nr_vieti);
+    friend void Combinatie_tipII_3(Map& obj, Walk& robot, int& x, int& y, int& destination, int& nr_vieti);
+    friend void Combinatie_tipII_4(Map& obj, Walk& robot, int& x, int& y, int& destination, int& nr_vieti);
     friend int check_path_line_forward(Map& obj, int& x, int& y, Walk& robot, int& destination, int nr_vieti);
     friend int check_path_column_down(Map& obj, int& x, int& y, Walk& robot, int& destination, int nr_vieti);
     friend int check_path_line_backward(Map& obj, int& x, int& y, Walk& robot, int& destination, int nr_vieti);
