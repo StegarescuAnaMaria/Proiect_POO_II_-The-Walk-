@@ -9,7 +9,7 @@ void prim(char** &harta, const char destinatie, const int nr_capcane, const char
 int** realocare(int**warning, int& nr_obiecte);
 //void Move_on_line(char**&harta, int**&warning, int x, int y, int nr_obiecte, const char destinatie);
 //void check(char**harta, int**&warning, int x, int y, Walk robot, int &nr_obiecte, const char destinatie);
-void printare(char**harta, int nr_vieti, int x, int y);
+char printare(char**harta, int nr_vieti, int x, int y);
 
 Walk::Walk(const char Urma1, const char Urma2, const char Item_type, const char Val, int Nr_vieti):
     urma1(Urma1), urma2(Urma2), item_type(Item_type), val(Val), nr_vieti(Nr_vieti)
@@ -246,10 +246,10 @@ int** realocare(int**warning, int& nr_obiecte)
     return warning;
 }
 
-int Move_on_line_forward(Map& obj, int& x, int& y, Walk& robot, int& destination, int nr_vieti)
+int Move_on_line_forward(Map& obj, int& x, int& y, Walk& robot, int& destination, int nr_vieti, char& raspuns_user)
 {
     int raspuns=0;
-    if(Move_towards_item_line(obj, x, y, robot, destination, nr_vieti)==1)
+    if(Move_towards_item_line(obj, x, y, robot, destination, nr_vieti, raspuns_user)==1)
         return 1;
     if(check_bombs(x, y+1, obj)==0)
     {
@@ -257,12 +257,12 @@ int Move_on_line_forward(Map& obj, int& x, int& y, Walk& robot, int& destination
         obj.harta[x][y]=robot.getUrma1();
         y++;
         raspuns=1;
-        printare(obj.harta, nr_vieti, x, y);
+        raspuns_user=printare(obj.harta, nr_vieti, x, y);
     }
     return raspuns;
 }
 
-void printare(char**harta, int nr_vieti, int x, int y)
+char printare(char**harta, int nr_vieti, int x, int y)
 {
     int i,j;
     for(i=0; i<32; i++)
@@ -281,6 +281,12 @@ void printare(char**harta, int nr_vieti, int x, int y)
     cout<<endl;
     cout<<"Pozitia robotului este ("<<x<<","<<y<<")"<<endl;
     cout<<"Numarul de vieti ramase "<<nr_vieti<<"/3"<<endl;
+
+    char raspuns_user;
+
+    cout<<"Doriti sa continuati? (D/N)"<<endl;
+    cin>>raspuns_user;
+    return raspuns_user;
 }
 
 int check_bombs(int x, int y, Map obj)
@@ -313,7 +319,7 @@ Map::Map(int L, int H, const char B, int n_bomb, int n_item, const char D, const
     i=rand()%15;
     j=rand()%15;
     harta[i][j]=destinatie;
-    cout<<i<<" "<<j<<endl;
+    //cout<<i<<" "<<j<<endl;
 
 
     for(i=0; i<nr_capcane; i++)
@@ -367,10 +373,10 @@ Map::Map(int L, int H, const char B, int n_bomb, int n_item, const char D, const
     }
 }
 
-int Move_on_column_down(Map&obj, int& x, int& y, Walk& robot, int& destination, int nr_vieti)
+int Move_on_column_down(Map&obj, int& x, int& y, Walk& robot, int& destination, int nr_vieti, char& raspuns_user)
 {
     int raspuns=0;
-    if(Move_towards_item_column(obj, x, y, robot, destination, nr_vieti)==1)
+    if(Move_towards_item_column(obj, x, y, robot, destination, nr_vieti, raspuns_user)==1)
         return 1;
 
     if(check_bombs(x+1, y, obj)==0)
@@ -379,184 +385,185 @@ int Move_on_column_down(Map&obj, int& x, int& y, Walk& robot, int& destination, 
         obj.harta[x][y]=robot.getUrma2();
         x++;
         raspuns=1;
-        printare(obj.harta, nr_vieti, x, y);
+        raspuns_user=printare(obj.harta, nr_vieti, x, y);
+
     }
     return raspuns;
 }
 
-void Combinatie_tipI_1(Map& obj, Walk& robot, int& x, int& y, int& destination, int& nr_vieti)
+void Combinatie_tipI_1(Map& obj, Walk& robot, int& x, int& y, int& destination, int& nr_vieti, char& raspuns_user)
 {
-    if(obj.harta[x][y+1]=='-' || Move_on_line_forward(obj, x, y, robot, destination, nr_vieti)==0)
+    if(obj.harta[x][y+1]=='-' || Move_on_line_forward(obj, x, y, robot, destination, nr_vieti, raspuns_user)==0)
     {
-                if(obj.harta[x+1][y]=='|' || Move_on_column_down(obj, x, y, robot, destination, nr_vieti)==0)
+        if(obj.harta[x+1][y]=='|' || Move_on_column_down(obj, x, y, robot, destination, nr_vieti, raspuns_user)==0)
+        {
+            if(obj.harta[x][y-1]=='-' || Move_on_line_backward(obj, x, y, robot, destination, nr_vieti, raspuns_user)==0)
+            {
+                if(obj.harta[x-1][y]=='|' || Move_on_column_up(obj, x, y, robot, destination, nr_vieti, raspuns_user)==0)
                 {
-                    if(obj.harta[x][y-1]=='-' || Move_on_line_backward(obj, x, y, robot, destination, nr_vieti)==0)
-                    {
-                        if(obj.harta[x-1][y]=='|' || Move_on_column_up(obj, x, y, robot, destination, nr_vieti)==0)
-                        {
-                            obj.harta[x][y+1]=robot.getVal();
-                            obj.harta[x][y]=robot.getUrma1();
-                            y++;
-                            //raspuns=1;
-                            nr_vieti--;
-                            printare(obj.harta, nr_vieti, x, y);
-                        }
-                    }
+                    obj.harta[x][y+1]=robot.getVal();
+                    obj.harta[x][y]=robot.getUrma1();
+                    y++;
+                    //raspuns=1;
+                    nr_vieti--;
+                    raspuns_user=printare(obj.harta, nr_vieti, x, y);
                 }
+            }
+        }
     }
 }
 
-void Combinatie_tipI_2(Map& obj, Walk& robot, int& x, int& y, int& destination, int& nr_vieti)
+void Combinatie_tipI_2(Map& obj, Walk& robot, int& x, int& y, int& destination, int& nr_vieti, char& raspuns_user)
 {
-    if(obj.harta[x+1][y]=='|' || Move_on_column_down(obj, x, y, robot, destination, nr_vieti)==0)
+    if(obj.harta[x+1][y]=='|' || Move_on_column_down(obj, x, y, robot, destination, nr_vieti, raspuns_user)==0)
+    {
+        if(obj.harta[x][y+1]=='-' || Move_on_line_forward(obj, x, y, robot, destination, nr_vieti, raspuns_user)==0)
+        {
+            if(obj.harta[x-1][y]=='|' || Move_on_column_up(obj, x, y, robot, destination, nr_vieti, raspuns_user)==0)
             {
-                if(obj.harta[x][y+1]=='-' || Move_on_line_forward(obj, x, y, robot, destination, nr_vieti)==0)
+                if(obj.harta[x][y-1]=='-' || Move_on_line_backward(obj, x, y, robot, destination, nr_vieti, raspuns_user)==0)
                 {
-                    if(obj.harta[x-1][y]=='|' || Move_on_column_up(obj, x, y, robot, destination, nr_vieti)==0)
-                    {
-                        if(obj.harta[x][y-1]=='-' || Move_on_line_backward(obj, x, y, robot, destination, nr_vieti)==0)
-                        {
-                            obj.harta[x+1][y]=robot.getVal();
-                            obj.harta[x][y]=robot.getUrma1();
-                            x++;
-                            //raspuns=1;
-                            nr_vieti--;
-                            printare(obj.harta, nr_vieti, x, y);
-                        }
-                    }
+                    obj.harta[x+1][y]=robot.getVal();
+                    obj.harta[x][y]=robot.getUrma1();
+                    x++;
+                    //raspuns=1;
+                    nr_vieti--;
+                    raspuns_user=printare(obj.harta, nr_vieti, x, y);
                 }
             }
+        }
+    }
 }
-void Combinatie_tipI_3(Map& obj, Walk& robot, int& x, int& y, int& destination, int& nr_vieti)
+void Combinatie_tipI_3(Map& obj, Walk& robot, int& x, int& y, int& destination, int& nr_vieti, char& raspuns_user)
 {
-    if(obj.harta[x][y+1]=='-' || Move_on_line_forward(obj, x, y, robot, destination, nr_vieti)==0)
+    if(obj.harta[x][y+1]=='-' || Move_on_line_forward(obj, x, y, robot, destination, nr_vieti, raspuns_user)==0)
+    {
+        if(obj.harta[x-1][y]=='|' || Move_on_column_up(obj, x, y, robot, destination, nr_vieti, raspuns_user)==0)
+        {
+            if(obj.harta[x][y-1]=='-' || Move_on_line_backward(obj, x, y, robot, destination, nr_vieti, raspuns_user)==0)
             {
-                if(obj.harta[x-1][y]=='|' || Move_on_column_up(obj, x, y, robot, destination, nr_vieti)==0)
+                if(obj.harta[x+1][y]=='|' || Move_on_column_down(obj, x, y, robot, destination, nr_vieti, raspuns_user)==0)
                 {
-                    if(obj.harta[x][y-1]=='-' || Move_on_line_backward(obj, x, y, robot, destination, nr_vieti)==0)
-                    {
-                        if(obj.harta[x+1][y]=='|' || Move_on_column_down(obj, x, y, robot, destination, nr_vieti)==0)
-                        {
-                            obj.harta[x][y+1]=robot.getVal();
-                            obj.harta[x][y]=robot.getUrma1();
-                            y++;
-                            //raspuns=1;
-                            nr_vieti--;
-                            printare(obj.harta, nr_vieti, x, y);
-                        }
-                    }
+                    obj.harta[x][y+1]=robot.getVal();
+                    obj.harta[x][y]=robot.getUrma1();
+                    y++;
+                    //raspuns=1;
+                    nr_vieti--;
+                    raspuns_user=printare(obj.harta, nr_vieti, x, y);
                 }
             }
-}
-
-void Combinatie_tipI_4(Map& obj, Walk& robot, int& x, int& y, int& destination, int& nr_vieti)
-{
-    if(obj.harta[x-1][y]=='|' || Move_on_column_up(obj, x, y, robot, destination, nr_vieti)==0)
-            {
-                if(obj.harta[x][y+1]=='-' || Move_on_line_forward(obj, x, y, robot, destination, nr_vieti)==0)
-                {
-                    if(obj.harta[x+1][y]=='|' || Move_on_column_down(obj, x, y, robot, destination, nr_vieti)==0)
-                    {
-                        if(obj.harta[x][y-1]=='-' || Move_on_line_backward(obj, x, y, robot, destination, nr_vieti)==0)
-                        {
-                            obj.harta[x-1][y]=robot.getVal();
-                            obj.harta[x][y]=robot.getUrma1();
-                            x--;
-                            //raspuns=1;
-                            nr_vieti--;
-                            printare(obj.harta, nr_vieti, x, y);
-                        }
-                    }
-                }
-            }
+        }
+    }
 }
 
-void Combinatie_tipI_5(Map& obj, Walk& robot, int& x, int& y, int& destination, int& nr_vieti)
+void Combinatie_tipI_4(Map& obj, Walk& robot, int& x, int& y, int& destination, int& nr_vieti, char& raspuns_user)
 {
-    if(obj.harta[x][y-1]=='-' || Move_on_line_backward(obj, x, y, robot, destination, nr_vieti)==0)
+    if(obj.harta[x-1][y]=='|' || Move_on_column_up(obj, x, y, robot, destination, nr_vieti, raspuns_user)==0)
+    {
+        if(obj.harta[x][y+1]=='-' || Move_on_line_forward(obj, x, y, robot, destination, nr_vieti, raspuns_user)==0)
+        {
+            if(obj.harta[x+1][y]=='|' || Move_on_column_down(obj, x, y, robot, destination, nr_vieti, raspuns_user)==0)
             {
-                if(obj.harta[x-1][y]=='|' || Move_on_column_up(obj, x, y, robot, destination, nr_vieti)==0)
+                if(obj.harta[x][y-1]=='-' || Move_on_line_backward(obj, x, y, robot, destination, nr_vieti, raspuns_user)==0)
                 {
-                    if(obj.harta[x][y+1]=='-' || Move_on_line_forward(obj, x, y, robot, destination, nr_vieti)==0)
-                    {
-                        if(obj.harta[x+1][y]=='|' || Move_on_column_down(obj, x, y, robot, destination, nr_vieti)==0)
-                        {
-                            obj.harta[x][y-1]=robot.getVal();
-                            obj.harta[x][y]=robot.getUrma1();
-                            y--;
-                            //raspuns=1;
-                            nr_vieti--;
-                            printare(obj.harta, nr_vieti, x, y);
-                        }
-                    }
+                    obj.harta[x-1][y]=robot.getVal();
+                    obj.harta[x][y]=robot.getUrma1();
+                    x--;
+                    //raspuns=1;
+                    nr_vieti--;
+                    raspuns_user=printare(obj.harta, nr_vieti, x, y);
                 }
             }
+        }
+    }
 }
 
-void Combinatie_tipI_6(Map& obj, Walk& robot, int& x, int& y, int& destination, int& nr_vieti)
+void Combinatie_tipI_5(Map& obj, Walk& robot, int& x, int& y, int& destination, int& nr_vieti, char& raspuns_user)
 {
-    if(obj.harta[x-1][y]=='|' || Move_on_column_up(obj, x, y, robot, destination, nr_vieti)==0)
+    if(obj.harta[x][y-1]=='-' || Move_on_line_backward(obj, x, y, robot, destination, nr_vieti, raspuns_user)==0)
+    {
+        if(obj.harta[x-1][y]=='|' || Move_on_column_up(obj, x, y, robot, destination, nr_vieti, raspuns_user)==0)
+        {
+            if(obj.harta[x][y+1]=='-' || Move_on_line_forward(obj, x, y, robot, destination, nr_vieti, raspuns_user)==0)
             {
-                if(obj.harta[x][y-1]=='-' || Move_on_line_backward(obj, x, y, robot, destination, nr_vieti)==0)
+                if(obj.harta[x+1][y]=='|' || Move_on_column_down(obj, x, y, robot, destination, nr_vieti, raspuns_user)==0)
                 {
-                    if(obj.harta[x+1][y]=='|' || Move_on_column_down(obj, x, y, robot, destination, nr_vieti)==0)
-                    {
-                        if(obj.harta[x][y+1]=='-' || Move_on_line_forward(obj, x, y, robot, destination, nr_vieti)==0)
-                        {
-                            obj.harta[x-1][y]=robot.getVal();
-                            obj.harta[x][y]=robot.getUrma1();
-                            x--;
-                            //raspuns=1;
-                            nr_vieti--;
-                            printare(obj.harta, nr_vieti, x, y);
-                        }
-                    }
+                    obj.harta[x][y-1]=robot.getVal();
+                    obj.harta[x][y]=robot.getUrma1();
+                    y--;
+                    //raspuns=1;
+                    nr_vieti--;
+                    raspuns_user=printare(obj.harta, nr_vieti, x, y);
                 }
             }
+        }
+    }
 }
 
-void Combinatie_tipI_7(Map& obj, Walk& robot, int& x, int& y, int& destination, int& nr_vieti)
+void Combinatie_tipI_6(Map& obj, Walk& robot, int& x, int& y, int& destination, int& nr_vieti, char& raspuns_user)
 {
-  if(obj.harta[x][y-1]=='-' || Move_on_line_backward(obj, x, y, robot, destination, nr_vieti)==0)
+    if(obj.harta[x-1][y]=='|' || Move_on_column_up(obj, x, y, robot, destination, nr_vieti, raspuns_user)==0)
+    {
+        if(obj.harta[x][y-1]=='-' || Move_on_line_backward(obj, x, y, robot, destination, nr_vieti, raspuns_user)==0)
+        {
+            if(obj.harta[x+1][y]=='|' || Move_on_column_down(obj, x, y, robot, destination, nr_vieti, raspuns_user)==0)
             {
-                if(obj.harta[x+1][y]=='|' || Move_on_column_down(obj, x, y, robot, destination, nr_vieti)==0)
+                if(obj.harta[x][y+1]=='-' || Move_on_line_forward(obj, x, y, robot, destination, nr_vieti, raspuns_user)==0)
                 {
-                    if(obj.harta[x][y+1]=='-' || Move_on_line_forward(obj, x, y, robot, destination, nr_vieti)==0)
-                    {
-                        if(obj.harta[x-1][y]=='|' || Move_on_column_up(obj, x, y, robot, destination, nr_vieti)==0)
-                        {
-                            obj.harta[x][y-1]=robot.getVal();
-                            obj.harta[x][y]=robot.getUrma1();
-                            y--;
-                            //raspuns=1;
-                            nr_vieti--;
-                            printare(obj.harta, nr_vieti, x, y);
-                        }
-                    }
+                    obj.harta[x-1][y]=robot.getVal();
+                    obj.harta[x][y]=robot.getUrma1();
+                    x--;
+                    //raspuns=1;
+                    nr_vieti--;
+                    raspuns_user=printare(obj.harta, nr_vieti, x, y);
                 }
             }
+        }
+    }
 }
 
-void Combinatie_tipI_8(Map& obj, Walk& robot, int& x, int& y, int& destination, int& nr_vieti)
+void Combinatie_tipI_7(Map& obj, Walk& robot, int& x, int& y, int& destination, int& nr_vieti, char& raspuns_user)
 {
-    if(obj.harta[x+1][y]=='|' || Move_on_column_down(obj, x, y, robot, destination, nr_vieti)==0)
+    if(obj.harta[x][y-1]=='-' || Move_on_line_backward(obj, x, y, robot, destination, nr_vieti, raspuns_user)==0)
+    {
+        if(obj.harta[x+1][y]=='|' || Move_on_column_down(obj, x, y, robot, destination, nr_vieti, raspuns_user)==0)
+        {
+            if(obj.harta[x][y+1]=='-' || Move_on_line_forward(obj, x, y, robot, destination, nr_vieti, raspuns_user)==0)
             {
-                if(obj.harta[x][y-1]=='-' || Move_on_line_backward(obj, x, y, robot, destination, nr_vieti)==0)
+                if(obj.harta[x-1][y]=='|' || Move_on_column_up(obj, x, y, robot, destination, nr_vieti, raspuns_user)==0)
                 {
-                    if(obj.harta[x-1][y]=='|' || Move_on_column_up(obj, x, y, robot, destination, nr_vieti)==0)
-                    {
-                        if(obj.harta[x][y+1]=='-' || Move_on_line_forward(obj, x, y, robot, destination, nr_vieti)==0)
-                        {
-                            obj.harta[x+1][y]=robot.getVal();
-                            obj.harta[x][y]=robot.getUrma1();
-                            x++;
-                            //raspuns=1;
-                            nr_vieti--;
-                            printare(obj.harta, nr_vieti, x, y);
-                        }
-                    }
+                    obj.harta[x][y-1]=robot.getVal();
+                    obj.harta[x][y]=robot.getUrma1();
+                    y--;
+                    //raspuns=1;
+                    nr_vieti--;
+                    raspuns_user=printare(obj.harta, nr_vieti, x, y);
                 }
             }
+        }
+    }
+}
+
+void Combinatie_tipI_8(Map& obj, Walk& robot, int& x, int& y, int& destination, int& nr_vieti, char& raspuns_user)
+{
+    if(obj.harta[x+1][y]=='|' || Move_on_column_down(obj, x, y, robot, destination, nr_vieti, raspuns_user)==0)
+    {
+        if(obj.harta[x][y-1]=='-' || Move_on_line_backward(obj, x, y, robot, destination, nr_vieti, raspuns_user)==0)
+        {
+            if(obj.harta[x-1][y]=='|' || Move_on_column_up(obj, x, y, robot, destination, nr_vieti, raspuns_user)==0)
+            {
+                if(obj.harta[x][y+1]=='-' || Move_on_line_forward(obj, x, y, robot, destination, nr_vieti, raspuns_user)==0)
+                {
+                    obj.harta[x+1][y]=robot.getVal();
+                    obj.harta[x][y]=robot.getUrma1();
+                    x++;
+                    //raspuns=1;
+                    nr_vieti--;
+                    raspuns_user=printare(obj.harta, nr_vieti, x, y);
+                }
+            }
+        }
+    }
 }
 
 void movementI(Walk& robot, Map &obj, int&x, int&y, int& nr_vieti)
@@ -566,6 +573,7 @@ void movementI(Walk& robot, Map &obj, int&x, int&y, int& nr_vieti)
     obj.harta[x][y]=robot.getVal();
     printare(obj.harta, nr_vieti, x, y);
     int destination=0;
+    char raspuns_user=' ';
 //------------------------------------------------I
     while((x<15)&&(y<15))
     {
@@ -575,23 +583,37 @@ void movementI(Walk& robot, Map &obj, int&x, int&y, int& nr_vieti)
         {
             if(x>=14||y>=14)
                 break;
-            Combinatie_tipI_1(obj, robot, x, y, destination, nr_vieti);
+            Combinatie_tipI_1(obj, robot, x, y, destination, nr_vieti, raspuns_user);
             if(destination==1)
             {
                 cout<<"S-a ajuns la destinatie cu succes! Sfarsit de joc."<<endl;
                 return;
             }
+            if(raspuns_user=='N')
+            {
+                cout<<"Sfarsit de joc "<<endl;
+                return;
+            }
+            else if(raspuns_user=='D')
+                continue;
         }
         for(j=0; j<3; j++)
         {
             if(x>=14||y>=14)
                 break;
-            Combinatie_tipI_2(obj, robot, x, y, destination, nr_vieti);
+            Combinatie_tipI_2(obj, robot, x, y, destination, nr_vieti, raspuns_user);
             if(destination==1)
             {
                 cout<<"S-a ajuns la destinatie cu succes! Sfarsit de joc."<<endl;
                 return;
             }
+            if(raspuns_user=='N')
+            {
+                cout<<"Sfarsit de joc "<<endl;
+                return;
+            }
+            else if(raspuns_user=='D')
+                continue;
         }
     }
     //---------------------------------------------------II
@@ -603,23 +625,37 @@ void movementI(Walk& robot, Map &obj, int&x, int&y, int& nr_vieti)
         {
             if(y>=14)
                 break;
-            Combinatie_tipI_3(obj, robot, x, y, destination, nr_vieti);
+            Combinatie_tipI_3(obj, robot, x, y, destination, nr_vieti, raspuns_user);
             if(destination==1)
             {
                 cout<<"S-a ajuns la destinatie cu succes! Sfarsit de joc."<<endl;
                 return;
             }
+            if(raspuns_user=='N')
+            {
+                cout<<"Sfarsit de joc "<<endl;
+                return;
+            }
+            else if(raspuns_user=='D')
+                continue;
         }
         for(j=0; j<3; j++)
         {
             if(x==0)
                 break;
-            Combinatie_tipI_4(obj, robot, x, y, destination, nr_vieti);
+            Combinatie_tipI_4(obj, robot, x, y, destination, nr_vieti, raspuns_user);
             if(destination==1)
             {
                 cout<<"S-a ajuns la destinatie cu succes! Sfarsit de joc."<<endl;
                 return;
             }
+            if(raspuns_user=='N')
+            {
+                cout<<"Sfarsit de joc "<<endl;
+                return;
+            }
+            else if(raspuns_user=='D')
+                continue;
         }
     }
     //------------------------------------------------------III-
@@ -632,23 +668,37 @@ void movementI(Walk& robot, Map &obj, int&x, int&y, int& nr_vieti)
         {
             if(y==0)
                 break;
-            Combinatie_tipI_5(obj, robot, x, y, destination, nr_vieti);
+            Combinatie_tipI_5(obj, robot, x, y, destination, nr_vieti, raspuns_user);
             if(destination==1)
             {
                 cout<<"S-a ajuns la destinatie cu succes! Sfarsit de joc."<<endl;
                 return;
             }
+            if(raspuns_user=='N')
+            {
+                cout<<"Sfarsit de joc "<<endl;
+                return;
+            }
+            else if(raspuns_user=='D')
+                continue;
         }
         for(j=0; j<3; j++)
         {
             if(x==0)
                 break;
-            Combinatie_tipI_6(obj, robot, x, y, destination, nr_vieti);
+            Combinatie_tipI_6(obj, robot, x, y, destination, nr_vieti, raspuns_user);
             if(destination==1)
             {
                 cout<<"S-a ajuns la destinatie cu succes! Sfarsit de joc."<<endl;
                 return;
             }
+            if(raspuns_user=='N')
+            {
+                cout<<"Sfarsit de joc "<<endl;
+                return;
+            }
+            else if(raspuns_user=='D')
+                continue;
         }
     }
     //-------------------------------------IV
@@ -661,31 +711,45 @@ void movementI(Walk& robot, Map &obj, int&x, int&y, int& nr_vieti)
         {
             if(y==0)
                 break;
-            Combinatie_tipI_7(obj, robot, x, y, destination, nr_vieti);
+            Combinatie_tipI_7(obj, robot, x, y, destination, nr_vieti, raspuns_user);
             if(destination==1)
             {
                 cout<<"S-a ajuns la destinatie cu succes! Sfarsit de joc."<<endl;
                 return;
             }
+            if(raspuns_user=='N')
+            {
+                cout<<"Sfarsit de joc "<<endl;
+                return;
+            }
+            else if(raspuns_user=='D')
+                continue;
         }
         for(j=0; j<3; j++)
         {
             if(x==14)
                 break;
-            Combinatie_tipI_8(obj, robot, x, y, destination, nr_vieti);
+            Combinatie_tipI_8(obj, robot, x, y, destination, nr_vieti, raspuns_user);
             if(destination==1)
             {
                 cout<<"S-a ajuns la destinatie cu succes! Sfarsit de joc."<<endl;
                 return;
             }
+            if(raspuns_user=='N')
+            {
+                cout<<"Sfarsit de joc "<<endl;
+                return;
+            }
+            else if(raspuns_user=='D')
+                continue;
         }
     }
 }
 
-int Move_on_column_up(Map&obj, int& x, int& y, Walk& robot, int& destination, int nr_vieti)
+int Move_on_column_up(Map&obj, int& x, int& y, Walk& robot, int& destination, int nr_vieti, char& raspuns_user)
 {
     int raspuns=0;
-    if(Move_towards_item_column(obj, x, y, robot, destination, nr_vieti)==1)
+    if(Move_towards_item_column(obj, x, y, robot, destination, nr_vieti, raspuns_user)==1)
         return 1;
 
     if(check_bombs(x-1, y, obj)==0)
@@ -694,15 +758,15 @@ int Move_on_column_up(Map&obj, int& x, int& y, Walk& robot, int& destination, in
         obj.harta[x][y]=robot.getUrma2();
         x--;
         raspuns=1;
-        printare(obj.harta, nr_vieti, x, y);
+        raspuns_user=printare(obj.harta, nr_vieti, x, y);
     }
     return raspuns;
 }
 
-int Move_on_line_backward(Map&obj, int& x, int& y, Walk& robot, int& destination, int nr_vieti)
+int Move_on_line_backward(Map&obj, int& x, int& y, Walk& robot, int& destination, int nr_vieti, char& raspuns_user)
 {
     int raspuns=0;
-    if(Move_towards_item_line(obj, x, y, robot, destination, nr_vieti)==1)
+    if(Move_towards_item_line(obj, x, y, robot, destination, nr_vieti, raspuns_user)==1)
         return 1;
     if(check_bombs(x, y-1, obj)==0)
     {
@@ -710,61 +774,62 @@ int Move_on_line_backward(Map&obj, int& x, int& y, Walk& robot, int& destination
         obj.harta[x][y]=robot.getUrma1();
         y--;
         raspuns=1;
-        printare(obj.harta, nr_vieti, x, y);
+        raspuns_user=printare(obj.harta, nr_vieti, x, y);
     }
     return raspuns;
 }
 
-int check_path_column_down(Map& obj, int& x, int& y, Walk& robot, int& destination, int nr_vieti)
+int check_path_column_down(Map& obj, int& x, int& y, Walk& robot, int& destination, int nr_vieti, char& raspuns_user)
 {
     int raspuns=0;
-    if ((y!=0 && x!=14 && (check_bombs(x+1, y+1, obj)==-1) && (check_bombs(x+1, y-1, obj)==-1))
-            || (y==0 && x!=14 && (check_bombs(x+1, y+1, obj)==-1))|| (y==14 && x!=14 && (check_bombs(x+1, y-1, obj)==-1)))
+    if ((check_bombs(x+1, y, obj)==0)&&((y!=0 && x!=14 && (check_bombs(x+1, y+1, obj)==-1) && (check_bombs(x+1, y-1, obj)==-1))
+            || (y==0 && x!=14 && (check_bombs(x+1, y+1, obj)==-1))|| (y==14 && x!=14 && (check_bombs(x+1, y-1, obj)==-1))))
     {
-        Move_on_column_down(obj, x, y, robot, destination, nr_vieti);
+        Move_on_column_down(obj, x, y, robot, destination, nr_vieti, raspuns_user);
         raspuns=1;
     }
     return raspuns;
 }
 
-int check_path_line_forward(Map& obj, int& x, int& y, Walk& robot, int& destination, int nr_vieti)
+int check_path_line_forward(Map& obj, int& x, int& y, Walk& robot, int& destination, int nr_vieti, char& raspuns_user)
 {
     int raspuns=0;
-    if ((x==0 && y!=14 && (check_bombs(x+1, y+1, obj)==-1)) ||
-                     (x!=0 && y!=14 && (check_bombs(x+1, y+1, obj)==-1) && (check_bombs(x-1, y+1, obj)==-1))||
-                     (x==14 && y!=14 && (check_bombs(x-1, y+1, obj)==-1)))
-                     {
-                         Move_on_line_forward(obj, x, y, robot, destination, nr_vieti);
-                         raspuns=1;
-                     }
-                     return raspuns;
+    if ((check_bombs(x, y+1, obj)==0)&&((x==0 && y!=14 && (check_bombs(x+1, y+1, obj)==-1)) ||
+            (x!=0 && y!=14 && (check_bombs(x+1, y+1, obj)==-1) && (check_bombs(x-1, y+1, obj)==-1))||
+            (x==14 && y!=14 && (check_bombs(x-1, y+1, obj)==-1))))
+    {
+        Move_on_line_forward(obj, x, y, robot, destination, nr_vieti, raspuns_user);
+        raspuns=1;
+    }
+    return raspuns;
 }
 
-int check_path_line_backward(Map& obj, int& x, int& y, Walk& robot, int& destination, int nr_vieti)
+int check_path_line_backward(Map& obj, int& x, int& y, Walk& robot, int& destination, int nr_vieti, char& raspuns_user)
 {
     int raspuns=0;
-    if ((x==0 && y!=0 && (check_bombs(x+1, y-1, obj)==-1)) ||
-                     (x!=0 && y!=0 && (check_bombs(x+1, y-1, obj)==-1) && (check_bombs(x-1, y-1, obj)==-1))||
-                     (x==14 && y!=0 && (check_bombs(x-1, y-1, obj)==-1)))
-                     {
-                         Move_on_line_backward(obj, x, y, robot, destination, nr_vieti);
-                         raspuns=1;
-                     }
-                     return raspuns;
+    if ((check_bombs(x, y-1, obj)==0)&&((x==0 && y!=0 && (check_bombs(x+1, y-1, obj)==-1)) ||
+            (x!=0 && y!=0 && (check_bombs(x+1, y-1, obj)==-1) && (check_bombs(x-1, y-1, obj)==-1))||
+            (x==14 && y!=0 && (check_bombs(x-1, y-1, obj)==-1))))
+    {
+        Move_on_line_backward(obj, x, y, robot, destination, nr_vieti, raspuns_user);
+        raspuns=1;
+    }
+    return raspuns;
 }
 
-void Combinatie_tipII_1(Map& obj, Walk& robot, int& x, int& y, int& destination, int& nr_vieti)
+void Combinatie_tipII_1(Map& obj, Walk& robot, int& x, int& y, int& destination, int& nr_vieti, char& raspuns_user)
 {
-if(check_path_column_down(obj, x, y, robot, destination, nr_vieti)==0)
-                    check_path_line_forward(obj, x, y, robot, destination, nr_vieti);
-
-            if (x==0 || obj.harta[x-1][y+1]=='/' || Move_on_the_diagonal_forward_up(obj, x, y, robot, destination, nr_vieti)==0)
+    if(check_path_column_down(obj, x, y, robot, destination, nr_vieti, raspuns_user)==0)
+    { cout<<"tipII_1 Check path column down 0"<<endl;
+        if(check_path_line_forward(obj, x, y, robot, destination, nr_vieti, raspuns_user)==0)
+        {cout<<"tipII_1 Check path line forward 0"<<endl;
+            if (x==0 || obj.harta[x-1][y+1]=='/' || Move_on_the_diagonal_forward_up(obj, x, y, robot, destination, nr_vieti, raspuns_user)==0)
             {
-                if(obj.harta[x+1][y+1]=='\\' || Move_on_the_diagonal_forward_down(obj, x, y, robot, destination, nr_vieti)==0)
+                if(obj.harta[x+1][y+1]=='\\' || Move_on_the_diagonal_forward_down(obj, x, y, robot, destination, nr_vieti, raspuns_user)==0)
                 {
-                    if(x==0 || y==0 || obj.harta[x-1][y-1]=='\\' || Move_on_the_diagonal_backward_up(obj, x, y, robot, destination, nr_vieti)==0)
+                    if(x==0 || y==0 || obj.harta[x-1][y-1]=='\\' || Move_on_the_diagonal_backward_up(obj, x, y, robot, destination, nr_vieti, raspuns_user)==0)
                     {
-                        if(y==0 || obj.harta[x+1][y-1]=='/' || Move_on_the_diagonal_backward_down(obj, x, y, robot, destination, nr_vieti)==0)
+                        if(y==0 || obj.harta[x+1][y-1]=='/' || Move_on_the_diagonal_backward_down(obj, x, y, robot, destination, nr_vieti, raspuns_user)==0)
                         {
                             if(x!=0)
                             {
@@ -775,7 +840,7 @@ if(check_path_column_down(obj, x, y, robot, destination, nr_vieti)==0)
                                 y++;
                                 //raspuns=1;
                                 nr_vieti--;
-                                printare(obj.harta, nr_vieti, x, y);
+                                raspuns_user=printare(obj.harta, nr_vieti, x, y);
                             }
                             else
                             {
@@ -786,53 +851,59 @@ if(check_path_column_down(obj, x, y, robot, destination, nr_vieti)==0)
                                 y++;
                                 //raspuns=1;
                                 nr_vieti--;
-                                printare(obj.harta, nr_vieti, x, y);
+                                raspuns_user=printare(obj.harta, nr_vieti, x, y);
                             }
                         }
                     }
                 }
             }
+        }
+}
 }
 
-void Combinatie_tipII_2(Map& obj, Walk& robot, int& x, int& y, int& destination, int& nr_vieti)
+void Combinatie_tipII_2(Map& obj, Walk& robot, int& x, int& y, int& destination, int& nr_vieti, char& raspuns_user)
 {
-    if(check_path_line_forward(obj, x, y, robot, destination, nr_vieti)==0)
-                    check_path_column_down(obj, x, y, robot, destination, nr_vieti);
-
-        if(obj.harta[x+1][y+1]=='\\' || Move_on_the_diagonal_forward_down(obj, x, y, robot, destination, nr_vieti)==0)
-        {
-            if(x==0||obj.harta[x-1][y+1]=='/' || Move_on_the_diagonal_forward_up(obj, x, y, robot, destination, nr_vieti)==0)
+    if(check_path_line_forward(obj, x, y, robot, destination, nr_vieti, raspuns_user)==0)
+    { cout<<" tipII_2 Check path line forward 0"<<endl;
+        if(check_path_column_down(obj, x, y, robot, destination, nr_vieti, raspuns_user)==0)
+        { cout<<" tipII_2 Check path column down 0"<<endl;
+            if(obj.harta[x+1][y+1]=='\\' || Move_on_the_diagonal_forward_down(obj, x, y, robot, destination, nr_vieti, raspuns_user)==0)
             {
-                if(y==0 || obj.harta[x+1][y-1]=='/' || Move_on_the_diagonal_backward_down(obj, x, y, robot, destination, nr_vieti)==0)
+                if(x==0||obj.harta[x-1][y+1]=='/' || Move_on_the_diagonal_forward_up(obj, x, y, robot, destination, nr_vieti, raspuns_user)==0)
                 {
-                    if(x==0 || y==0 || obj.harta[x-1][y-1]=='\\' || Move_on_the_diagonal_backward_up(obj, x, y, robot, destination, nr_vieti)==0)
+                    if(y==0 || obj.harta[x+1][y-1]=='/' || Move_on_the_diagonal_backward_down(obj, x, y, robot, destination, nr_vieti, raspuns_user)==0)
                     {
-                        TypeII *robot2 =  (TypeII *) &robot;
-                        obj.harta[x+1][y+1]=robot.getVal();
-                        obj.harta[x][y]=robot2->getUrma3();       //downcasting
-                        x++;
-                        y++;
-                        //raspuns=1;
-                        nr_vieti--;
-                        printare(obj.harta, nr_vieti, x, y);
+                        if(x==0 || y==0 || obj.harta[x-1][y-1]=='\\' || Move_on_the_diagonal_backward_up(obj, x, y, robot, destination, nr_vieti, raspuns_user)==0)
+                        {
+                            TypeII *robot2 =  (TypeII *) &robot;
+                            obj.harta[x+1][y+1]=robot.getVal();
+                            obj.harta[x][y]=robot2->getUrma3();       //downcasting
+                            x++;
+                            y++;
+                            //raspuns=1;
+                            nr_vieti--;
+                            raspuns_user=printare(obj.harta, nr_vieti, x, y);
+                        }
                     }
                 }
             }
+        }
 }
 }
 
-void Combinatie_tipII_3(Map& obj, Walk& robot, int& x, int& y, int& destination, int& nr_vieti)
+void Combinatie_tipII_3(Map& obj, Walk& robot, int& x, int& y, int& destination, int& nr_vieti, char& raspuns_user)
 {
-    if(check_path_column_down(obj, x, y, robot, destination, nr_vieti)==0)
-                    check_path_line_backward(obj, x, y, robot, destination, nr_vieti);
-
-            if(obj.harta[x-1][y-1]=='\\' || Move_on_the_diagonal_backward_up(obj, x, y, robot, destination, nr_vieti)==0)
+    if(check_path_column_down(obj, x, y, robot, destination, nr_vieti, raspuns_user)==0)
+    {
+        if(check_path_line_backward(obj, x, y, robot, destination, nr_vieti, raspuns_user)==0)
+        {
+            if(obj.harta[x-1][y-1]=='\\' || Move_on_the_diagonal_backward_up(obj, x, y, robot, destination, nr_vieti, raspuns_user)==0)
             {
-                if(obj.harta[x+1][y-1]=='/' || Move_on_the_diagonal_backward_down(obj, x, y, robot, destination, nr_vieti)==0)
+                if(obj.harta[x+1][y-1]=='/' || Move_on_the_diagonal_backward_down(obj, x, y, robot, destination, nr_vieti, raspuns_user)==0)
                 {
-                    if(y==14 || x==0 || obj.harta[x-1][y+1]=='/' || Move_on_the_diagonal_forward_up(obj, x, y, robot, destination, nr_vieti)==0)
+                    if(y==14 || x==0 || obj.harta[x-1][y+1]=='/' || Move_on_the_diagonal_forward_up(obj, x, y, robot, destination, nr_vieti, raspuns_user)==0)
                     {
-                        if(y==14 || obj.harta[x+1][y+1]=='\\' || Move_on_the_diagonal_forward_down(obj, x, y, robot, destination, nr_vieti)==0)
+                        if(y==14 || obj.harta[x+1][y+1]=='\\' || Move_on_the_diagonal_forward_down(obj, x, y, robot, destination, nr_vieti, raspuns_user)==0)
                         {
                             TypeII *robot2 =  (TypeII *) &robot;
                             obj.harta[x-1][y-1]=robot.getVal();
@@ -841,38 +912,43 @@ void Combinatie_tipII_3(Map& obj, Walk& robot, int& x, int& y, int& destination,
                             y--;
                             //raspuns=1;
                             nr_vieti--;
-                            printare(obj.harta, nr_vieti, x, y);
+                            raspuns_user=printare(obj.harta, nr_vieti, x, y);
                         }
                     }
                 }
             }
+        }
+}
 }
 
-void Combinatie_tipII_4(Map& obj, Walk& robot, int& x, int& y, int& destination, int& nr_vieti)
+void Combinatie_tipII_4(Map& obj, Walk& robot, int& x, int& y, int& destination, int& nr_vieti, char& raspuns_user)
 {
-    if(check_path_line_backward(obj, x, y, robot, destination, nr_vieti)==0)
-                    check_path_column_down(obj, x, y, robot, destination, nr_vieti);
-
-                if(obj.harta[x+1][y-1]=='/' || Move_on_the_diagonal_backward_down(obj, x, y, robot, destination, nr_vieti)==0)
+    if(check_path_line_backward(obj, x, y, robot, destination, nr_vieti, raspuns_user)==0)
+    {
+        if(check_path_column_down(obj, x, y, robot, destination, nr_vieti, raspuns_user)==0)
+        {
+            if(obj.harta[x+1][y-1]=='/' || Move_on_the_diagonal_backward_down(obj, x, y, robot, destination, nr_vieti, raspuns_user)==0)
+            {
+                if(obj.harta[x-1][y-1]=='\\' || Move_on_the_diagonal_backward_up(obj, x, y, robot, destination, nr_vieti, raspuns_user)==0)
                 {
-                    if(obj.harta[x-1][y-1]=='\\' || Move_on_the_diagonal_backward_up(obj, x, y, robot, destination, nr_vieti)==0)
+                    if(x==14 || y==14 || obj.harta[x+1][y+1]=='\\' || Move_on_the_diagonal_forward_down(obj, x, y, robot, destination, nr_vieti, raspuns_user)==0)
                     {
-                        if(x==14 || y==14 || obj.harta[x+1][y+1]=='\\' || Move_on_the_diagonal_forward_down(obj, x, y, robot, destination, nr_vieti)==0)
+                        if(y==14||obj.harta[x-1][y+1]=='/' || Move_on_the_diagonal_forward_up(obj, x, y, robot, destination, nr_vieti, raspuns_user)==0)
                         {
-                            if(y==14||obj.harta[x-1][y+1]=='/' || Move_on_the_diagonal_forward_up(obj, x, y, robot, destination, nr_vieti)==0)
-                            {
-                                TypeII *robot2 =  (TypeII *) &robot;
-                                obj.harta[x+1][y-1]=robot.getVal();
-                                obj.harta[x][y]=robot2->getUrma3();       //downcasting
-                                x++;
-                                y--;
-                                //raspuns=1;
-                                nr_vieti--;
-                                printare(obj.harta, nr_vieti, x, y);
-                            }
+                            TypeII *robot2 =  (TypeII *) &robot;
+                            obj.harta[x+1][y-1]=robot.getVal();
+                            obj.harta[x][y]=robot2->getUrma3();       //downcasting
+                            x++;
+                            y--;
+                            //raspuns=1;
+                            nr_vieti--;
+                            raspuns_user=printare(obj.harta, nr_vieti, x, y);
                         }
                     }
                 }
+            }
+        }
+}
 }
 
 void movementII(Walk& robot, Map &obj, int& x, int& y, int& nr_vieti)
@@ -885,6 +961,7 @@ void movementII(Walk& robot, Map &obj, int& x, int& y, int& nr_vieti)
     printare(obj.harta, nr_vieti, x, y);
     //TypeII *robot2 =  (TypeII *) &robot;
     int destination=0;
+    char raspuns_user=' ';
     while(x>=0&&y>=0&&x<15&&y<15)
     {
         if(y==14)
@@ -892,14 +969,14 @@ void movementII(Walk& robot, Map &obj, int& x, int& y, int& nr_vieti)
         int aux=rand();
         int aux1=aux%2;
         //cout<<x<<" "<<y<<endl;
-        //cout<<"aux1 este "<<aux1<<endl;
+        cout<<"aux1 este "<<aux1<<endl;
         if(aux1==0)
         {
-           Combinatie_tipII_1(obj, robot, x, y, destination, nr_vieti);
+            Combinatie_tipII_1(obj, robot, x, y, destination, nr_vieti, raspuns_user);
         }
         else if(aux1==1&&x!=14)
         {
-            Combinatie_tipII_2(obj, robot, x, y, destination, nr_vieti);
+            Combinatie_tipII_2(obj, robot, x, y, destination, nr_vieti, raspuns_user);
         }
         if(destination==1)
         {
@@ -907,6 +984,13 @@ void movementII(Walk& robot, Map &obj, int& x, int& y, int& nr_vieti)
             return;
         }
         //cout<<x<<" "<<y<<endl;
+        if(raspuns_user=='N')
+        {
+            cout<<"Sfarsit de joc "<<endl;
+            return;
+        }
+        else if(raspuns_user=='D')
+            continue;
     }
 
     while(x>=0&&y>=0&&x<15&&y<15)
@@ -916,27 +1000,34 @@ void movementII(Walk& robot, Map &obj, int& x, int& y, int& nr_vieti)
         int aux=rand();
         int aux1=aux%2;
         //cout<<x<<" "<<y<<endl;
-        //cout<<"aux1 este "<<aux1<<endl;
+        cout<<"aux1 este "<<aux1<<endl;
         if(aux1==0&&x!=0)
         {
-            Combinatie_tipII_3(obj, robot, x, y, destination, nr_vieti);
+            Combinatie_tipII_3(obj, robot, x, y, destination, nr_vieti, raspuns_user);
         }
-            else if(aux1==1&&x!=14)
-            {
-               Combinatie_tipII_4(obj, robot, x, y, destination, nr_vieti);
-            }
+        else if(aux1==1&&x!=14)
+        {
+            Combinatie_tipII_4(obj, robot, x, y, destination, nr_vieti, raspuns_user);
+        }
         if(destination==1)
         {
             cout<<"S-a ajuns la destinatie cu succes! Sfarsit de joc."<<endl;
             return;
         }
+        if(raspuns_user=='N')
+        {
+            cout<<"Sfarsit de joc "<<endl;
+            return;
+        }
+        else if(raspuns_user=='D')
+            continue;
     }
 }
 
-int Move_on_the_diagonal_forward_up(Map&obj, int& x, int& y, Walk& robot, int& destination, int nr_vieti)
+int Move_on_the_diagonal_forward_up(Map&obj, int& x, int& y, Walk& robot, int& destination, int nr_vieti, char& raspuns_user)
 {
     int raspuns=0;
-    if(Move_towards_item_diagonal(obj, x, y, robot, destination, nr_vieti)==1)
+    if(Move_towards_item_diagonal(obj, x, y, robot, destination, nr_vieti, raspuns_user)==1)
         return 1;
 
     if(check_bombs(x-1, y+1, obj)==0)
@@ -947,15 +1038,15 @@ int Move_on_the_diagonal_forward_up(Map&obj, int& x, int& y, Walk& robot, int& d
         x--;
         y++;
         raspuns=1;
-        printare(obj.harta, nr_vieti, x, y);
+        raspuns_user=printare(obj.harta, nr_vieti, x, y);
     }
     return raspuns;
 }
 
-int Move_on_the_diagonal_forward_down(Map&obj, int& x, int& y, Walk& robot, int& destination, int nr_vieti)
+int Move_on_the_diagonal_forward_down(Map&obj, int& x, int& y, Walk& robot, int& destination, int nr_vieti, char& raspuns_user)
 {
     int raspuns=0;
-    if(Move_towards_item_diagonal(obj, x, y, robot, destination, nr_vieti)==1)
+    if(Move_towards_item_diagonal(obj, x, y, robot, destination, nr_vieti, raspuns_user)==1)
         return 1;
     if(check_bombs(x+1, y+1, obj)==0)
     {
@@ -965,12 +1056,12 @@ int Move_on_the_diagonal_forward_down(Map&obj, int& x, int& y, Walk& robot, int&
         x++;
         y++;
         raspuns=1;
-        printare(obj.harta, nr_vieti, x, y);
+        raspuns_user=printare(obj.harta, nr_vieti, x, y);
     }
     return raspuns;
 }
 
-int Move_towards_item_column(Map&obj, int& x, int& y, Walk& robot, int& destination, int nr_vieti)
+int Move_towards_item_column(Map&obj, int& x, int& y, Walk& robot, int& destination, int nr_vieti, char& raspuns_user)
 {
     int**warning=NULL;
     int nr_obiecte=0;
@@ -993,7 +1084,7 @@ int Move_towards_item_column(Map&obj, int& x, int& y, Walk& robot, int& destinat
                     obj.harta[x][y]=robot.getUrma2();
                     x++;
                     answer=1;
-                    printare(obj.harta, nr_vieti, x, y);
+                    raspuns_user=printare(obj.harta, nr_vieti, x, y);
                 }
             }
             else if(warning[i][0]<x)
@@ -1006,7 +1097,7 @@ int Move_towards_item_column(Map&obj, int& x, int& y, Walk& robot, int& destinat
                     obj.harta[x][y]=robot.getUrma2();
                     x--;
                     answer=1;
-                    printare(obj.harta, nr_vieti, x, y);
+                    raspuns_user=printare(obj.harta, nr_vieti, x, y);
                 }
             }
             else
@@ -1021,7 +1112,7 @@ int Move_towards_item_column(Map&obj, int& x, int& y, Walk& robot, int& destinat
                         obj.harta[x][y]=robot.getUrma1();
                         y++;
                         answer=1;
-                        printare(obj.harta, nr_vieti, x, y);
+                        raspuns_user=printare(obj.harta, nr_vieti, x, y);
                     }
                 }
                 else if(warning[i][1]<y)
@@ -1034,7 +1125,7 @@ int Move_towards_item_column(Map&obj, int& x, int& y, Walk& robot, int& destinat
                         obj.harta[x][y]=robot.getUrma1();
                         y--;
                         answer=1;
-                        printare(obj.harta, nr_vieti, x, y);
+                        raspuns_user=printare(obj.harta, nr_vieti, x, y);
                     }
                 }
             }
@@ -1043,7 +1134,7 @@ int Move_towards_item_column(Map&obj, int& x, int& y, Walk& robot, int& destinat
     return answer;
 }
 
-int Move_towards_item_line(Map&obj, int& x, int& y, Walk& robot, int& destination, int nr_vieti)
+int Move_towards_item_line(Map&obj, int& x, int& y, Walk& robot, int& destination, int nr_vieti, char& raspuns_user)
 {
     int**warning=NULL;
     int nr_obiecte=0;
@@ -1066,7 +1157,7 @@ int Move_towards_item_line(Map&obj, int& x, int& y, Walk& robot, int& destinatio
                     obj.harta[x][y]=robot.getUrma1();
                     y++;
                     answer=1;
-                    printare(obj.harta, nr_vieti, x, y);
+                    raspuns_user=printare(obj.harta, nr_vieti, x, y);
                 }
             }
             else if(warning[i][1]<y)
@@ -1079,7 +1170,7 @@ int Move_towards_item_line(Map&obj, int& x, int& y, Walk& robot, int& destinatio
                     obj.harta[x][y]=robot.getUrma1();
                     y--;
                     answer=1;
-                    printare(obj.harta, nr_vieti, x, y);
+                    raspuns_user=printare(obj.harta, nr_vieti, x, y);
                 }
             }
             else
@@ -1094,7 +1185,7 @@ int Move_towards_item_line(Map&obj, int& x, int& y, Walk& robot, int& destinatio
                         obj.harta[x][y]=robot.getUrma2();
                         x++;
                         answer=1;
-                        printare(obj.harta, nr_vieti, x, y);
+                        raspuns_user=printare(obj.harta, nr_vieti, x, y);
                     }
                 }
                 else if(warning[i][0]<x)
@@ -1107,7 +1198,7 @@ int Move_towards_item_line(Map&obj, int& x, int& y, Walk& robot, int& destinatio
                         obj.harta[x][y]=robot.getUrma2();
                         x--;
                         answer=1;
-                        printare(obj.harta, nr_vieti, x, y);
+                        raspuns_user=printare(obj.harta, nr_vieti, x, y);
                     }
                 }
             }
@@ -1116,10 +1207,10 @@ int Move_towards_item_line(Map&obj, int& x, int& y, Walk& robot, int& destinatio
     return answer;
 }
 
-int Move_on_the_diagonal_backward_up(Map&obj, int& x, int& y, Walk& robot, int& destination, int nr_vieti)
+int Move_on_the_diagonal_backward_up(Map&obj, int& x, int& y, Walk& robot, int& destination, int nr_vieti, char& raspuns_user)
 {
     int raspuns=0;
-    if(Move_towards_item_diagonal(obj, x, y, robot, destination, nr_vieti)==1)
+    if(Move_towards_item_diagonal(obj, x, y, robot, destination, nr_vieti, raspuns_user)==1)
         return 1;
     if(check_bombs(x-1, y-1, obj)==0)
     {
@@ -1129,15 +1220,15 @@ int Move_on_the_diagonal_backward_up(Map&obj, int& x, int& y, Walk& robot, int& 
         x--;
         y--;
         raspuns=1;
-        printare(obj.harta, nr_vieti, x, y);
+        raspuns_user=printare(obj.harta, nr_vieti, x, y);
     }
     return raspuns;
 }
 
-int Move_on_the_diagonal_backward_down(Map&obj, int& x, int& y, Walk& robot, int& destination, int nr_vieti)
+int Move_on_the_diagonal_backward_down(Map&obj, int& x, int& y, Walk& robot, int& destination, int nr_vieti, char& raspuns_user)
 {
     int raspuns=0;
-    if(Move_towards_item_diagonal(obj, x, y, robot, destination, nr_vieti)==1)
+    if(Move_towards_item_diagonal(obj, x, y, robot, destination, nr_vieti, raspuns_user)==1)
         return 1;
 
     if(check_bombs(x+1, y-1, obj)==0)
@@ -1148,12 +1239,12 @@ int Move_on_the_diagonal_backward_down(Map&obj, int& x, int& y, Walk& robot, int
         x++;
         y--;
         raspuns=1;
-        printare(obj.harta, nr_vieti, x, y);
+        raspuns_user=printare(obj.harta, nr_vieti, x, y);
     }
     return raspuns;
 }
 
-int Move_towards_item_diagonal(Map&obj, int& x, int& y, Walk& robot, int& destination, int nr_vieti)
+int Move_towards_item_diagonal(Map&obj, int& x, int& y, Walk& robot, int& destination, int nr_vieti, char& raspuns_user)
 {
     int**warning=NULL;
     int nr_obiecte=0;
@@ -1178,7 +1269,7 @@ int Move_towards_item_diagonal(Map&obj, int& x, int& y, Walk& robot, int& destin
                     x--;
                     y--;
                     answer=1;
-                    printare(obj.harta, nr_vieti, x, y);
+                    raspuns_user=printare(obj.harta, nr_vieti, x, y);
                 }
             }
             else if(warning[i][1]>y&&warning[i][0]<x)
@@ -1192,7 +1283,7 @@ int Move_towards_item_diagonal(Map&obj, int& x, int& y, Walk& robot, int& destin
                     x--;
                     y++;
                     answer=1;
-                    printare(obj.harta, nr_vieti, x, y);
+                    raspuns_user=printare(obj.harta, nr_vieti, x, y);
                 }
             }
             else if(warning[i][1]<y&&warning[i][0]>x)
@@ -1206,7 +1297,7 @@ int Move_towards_item_diagonal(Map&obj, int& x, int& y, Walk& robot, int& destin
                     x++;
                     y--;
                     answer=1;
-                    printare(obj.harta, nr_vieti, x, y);
+                    raspuns_user=printare(obj.harta, nr_vieti, x, y);
                 }
             }
             else if(warning[i][1]>y&&warning[i][0]>x)
@@ -1220,7 +1311,7 @@ int Move_towards_item_diagonal(Map&obj, int& x, int& y, Walk& robot, int& destin
                     x++;
                     y++;
                     answer=1;
-                    printare(obj.harta, nr_vieti, x, y);
+                    raspuns_user=printare(obj.harta, nr_vieti, x, y);
                 }
             }
             //daca nu e posibil sa mearga pe diagonala
@@ -1234,7 +1325,7 @@ int Move_towards_item_diagonal(Map&obj, int& x, int& y, Walk& robot, int& destin
                     obj.harta[x][y]=robot.getUrma1();
                     y++;
                     answer=1;
-                    printare(obj.harta, nr_vieti, x, y);
+                    raspuns_user=printare(obj.harta, nr_vieti, x, y);
                 }
             }
             else if(warning[i][1]<y)
@@ -1247,7 +1338,7 @@ int Move_towards_item_diagonal(Map&obj, int& x, int& y, Walk& robot, int& destin
                     obj.harta[x][y]=robot.getUrma1();
                     y--;
                     answer=1;
-                    printare(obj.harta, nr_vieti, x, y);
+                    raspuns_user=printare(obj.harta, nr_vieti, x, y);
                 }
             }
             else
@@ -1262,7 +1353,7 @@ int Move_towards_item_diagonal(Map&obj, int& x, int& y, Walk& robot, int& destin
                         obj.harta[x][y]=robot.getUrma2();
                         x++;
                         answer=1;
-                        printare(obj.harta, nr_vieti, x, y);
+                        raspuns_user=printare(obj.harta, nr_vieti, x, y);
                     }
                 }
                 else if(warning[i][0]<x)
@@ -1275,7 +1366,7 @@ int Move_towards_item_diagonal(Map&obj, int& x, int& y, Walk& robot, int& destin
                         obj.harta[x][y]=robot.getUrma2();
                         x--;
                         answer=1;
-                        printare(obj.harta, nr_vieti, x, y);
+                        raspuns_user=printare(obj.harta, nr_vieti, x, y);
                     }
                 }
             }
@@ -1290,6 +1381,7 @@ void movementIII(Walk& robot, Map &obj, int& x, int& y, int& nr_vieti)
     int destination=0;
     int seed=0;
     char**harta=obj.getHarta();
+    char raspuns_user=' ';
     harta[x][y]=robot.getVal();
     printare(obj.harta, nr_vieti, x, y);
 
@@ -1303,28 +1395,28 @@ void movementIII(Walk& robot, Map &obj, int& x, int& y, int& nr_vieti)
 
         if(aux1==0&&x!=0)
             //Move_on_column_up(obj, x, y, robot, destination, nr_vieti);
-            Combinatie_tipI_4(obj, robot, x, y, destination, nr_vieti);
+            Combinatie_tipI_4(obj, robot, x, y, destination, nr_vieti, raspuns_user);
         else if(aux1==1&&x!=0&&y!=14)
             //Move_on_the_diagonal_forward_up(obj, x, y, robot, destination, nr_vieti);
-            Combinatie_tipII_1(obj, robot, x, y, destination, nr_vieti);
+            Combinatie_tipII_1(obj, robot, x, y, destination, nr_vieti, raspuns_user);
         else if(aux1==2&&y!=14)
             //Move_on_line_forward(obj, x, y, robot, destination, nr_vieti);
-            Combinatie_tipI_1(obj, robot, x, y, destination, nr_vieti);
+            Combinatie_tipI_1(obj, robot, x, y, destination, nr_vieti, raspuns_user);
         else if(aux1==3&&y!=14&&x!=14)
             //Move_on_the_diagonal_forward_down(obj, x, y, robot, destination, nr_vieti);
-            Combinatie_tipII_2(obj, robot, x, y, destination, nr_vieti);
+            Combinatie_tipII_2(obj, robot, x, y, destination, nr_vieti, raspuns_user);
         else if(aux1==4&&x!=14)
             //Move_on_column_down(obj, x, y, robot, destination, nr_vieti);
-            Combinatie_tipI_2(obj, robot, x, y, destination, nr_vieti);
+            Combinatie_tipI_2(obj, robot, x, y, destination, nr_vieti, raspuns_user);
         else if(aux1==5&&x!=14&&y!=0)
             //Move_on_the_diagonal_backward_down(obj, x, y, robot, destination, nr_vieti);
-            Combinatie_tipII_4(obj, robot, x, y, destination, nr_vieti);
+            Combinatie_tipII_4(obj, robot, x, y, destination, nr_vieti, raspuns_user);
         else if(aux1==6&&y!=0)
             //Move_on_line_backward(obj, x, y, robot, destination, nr_vieti);
-            Combinatie_tipI_7(obj, robot, x, y, destination, nr_vieti);
+            Combinatie_tipI_7(obj, robot, x, y, destination, nr_vieti, raspuns_user);
         else if(aux1==7&&x!=0&&y!=0)
             //Move_on_the_diagonal_backward_up(obj, x, y, robot, destination, nr_vieti);
-            Combinatie_tipII_3(obj, robot, x, y, destination, nr_vieti);
+            Combinatie_tipII_3(obj, robot, x, y, destination, nr_vieti, raspuns_user);
         //cout<<x<<" "<<y<<endl;
         //cout<<destination<<endl;
         if(destination==1)
@@ -1332,5 +1424,12 @@ void movementIII(Walk& robot, Map &obj, int& x, int& y, int& nr_vieti)
             cout<<"S-a ajuns la destinatie cu succes! Sfarsit de joc."<<endl;
             break;
         }
+        if(raspuns_user=='N')
+        {
+            cout<<"Sfarsit de joc "<<endl;
+            return;
+        }
+        else if(raspuns_user=='D')
+            continue;
     }
 }
