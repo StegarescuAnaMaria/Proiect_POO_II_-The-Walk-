@@ -129,7 +129,6 @@ void check_items2(Map obj, int**&warning, int x, int y, int&nr_obiecte, const ch
 void check_items1(Map obj, int**&warning, int x, int y, Walk& robot, int &nr_obiecte, const char item, int cod, int vizor)
 {
     int i, j;
-    int counter;
     for(i=0; i<=vizor; i++)
         for(j=0; j<=vizor; j++)
             //check cadranul 1
@@ -243,9 +242,8 @@ int check_bombs(int x, int y, Map obj)
 }
 //------------------------------------------------------------------------------------------------------
 //constructorul pentru harta (harta jocului va fi o matrice de caractere si itemii/capcanele/destinatia sunt plasate random)
-Map::Map(const int L,const int H, const char B, int n_bomb, int n_item, const char D, const char item1,
-         const char item2, const char item3, const char item4): l(L), h(H), bomb(B), nr_capcane(n_bomb),
-    nr_itemi(n_item), destinatie(D)
+Map::Map(const int L, const int H, const char B, int n_bomb, int n_item, const char D, const char item1,
+         const char item2, const char item3, const char item4): l(L), h(H), destinatie(D), bomb(B), nr_capcane(n_bomb), nr_itemi(n_item)
 {
     srand(time(NULL));
     TypeI robot1;
@@ -1397,7 +1395,7 @@ int Move_on_the_diagonal_forward_down(int**&verif_destinatie, int**&verif_item, 
 }
 //----------------------------------------------------------------------------------------------------------
 //functia actualizeaza matricile pentru itemi prin intermediul check_items1
-int Move_towards_item_general(int**&verif_destinatie, int**&verif_item, int**&verif_item_aux, int& nr_obiecteD, int& nr_obiecte, int& nr_obiecte_aux,
+void Move_towards_item_general(int**&verif_destinatie, int**&verif_item, int**&verif_item_aux, int& nr_obiecteD, int& nr_obiecte, int& nr_obiecte_aux,
                               const char item, const char item_aux, Map obj, int x, int y, Walk& robot, int vizor)
 {
     check_items1(obj, verif_destinatie, x, y, robot, nr_obiecteD, obj.destinatie, 1, vizor);
@@ -1431,7 +1429,7 @@ int Move_towards_item_column(int**warning, int nr_obiecte, int cod, Map&obj, int
     TypeII robot2;
     TypeIII robot3;
     Walk robot_aux;
-    int i,j;
+    int i;
     int answer=0;
     int aux=0;
     int aux2=0;
@@ -1621,7 +1619,7 @@ int Move_towards_item_line(int**warning, int nr_obiecte, int cod, Map&obj, int& 
     Walk robot_aux;
     int aux=0;
     int aux2=0;
-    int i,j;
+    int i;
     int answer=0;
     for(i=0; i<nr_obiecte; i++)
     {
@@ -1773,7 +1771,7 @@ int Move_towards_item_diagonal_aux(int**verif_destinatie, int**verif_item, int**
 int Move_towards_item_diagonal(int**&warning, int&nr_obiecte, int cod, Map&obj, int& x, int& y, Walk& robot, int& destination, int& nr_vieti,
                                char& raspuns_user, int&inventory, int&vizor, int&nr_pasi)
 {
-    int i,j;
+    int i;
     int answer=0;
     int aux=0;
     TypeII robot2;
@@ -1991,7 +1989,6 @@ int movementIII(Walk& robot, Map &obj, int& x, int& y, int& nr_vieti, int&invent
 {
     srand(time(NULL));
     int destination=0;
-    int seed=0;
     char**harta=obj.getHarta();
     char raspuns_user=' ';
     harta[x][y]=robot.getVal();
@@ -2056,4 +2053,5 @@ Move_towards_item_general(verif_destinatie, verif_item, verif_item_aux, nr_obiec
         else if(raspuns_user=='D')
             continue;
     }
+    return 0;
 }

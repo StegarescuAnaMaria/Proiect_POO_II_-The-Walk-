@@ -76,7 +76,7 @@ class Map:public Walk
 public:
     friend void efect_item2(int&, int&, Map&, Walk&, int, int&);
     friend void efect_item1(int&, int&, Map&, int&, Walk&, int, int);
-    friend int Move_towards_item_general(int**&, int**&, int**&, int&, int&, int&, const char, const char, Map obj, int, int, Walk&, int);
+    friend void Move_towards_item_general(int**&, int**&, int**&, int&, int&, int&, const char, const char, Map obj, int, int, Walk&, int);
     friend char printare(Map, int, int, int, int);
     friend void Combinatie_tipI_1(int**&, int**&, int**&, int&, int&, int&, Map&, Walk&, int&, int&, int&, int&, char&, int&, int&, int&);
     friend void Combinatie_tipI_2(int**&, int**&, int**&, int&, int&, int&, Map&, Walk&, int&, int&, int&, int&, char&, int&, int&, int&);
